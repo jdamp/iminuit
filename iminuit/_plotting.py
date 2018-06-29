@@ -9,9 +9,11 @@ __all__ = ['draw_contour',
            ]
 
 
-def draw_profile(self, vname, x, y, s=None, band=True, text=True):
+def draw_profile(self, vname, x, y, s=None, band=True, text=True, ax=None):
     from matplotlib import pyplot as plt
     import numpy as np
+    if ax is None:
+        ax = plt.gca()
 
     x = np.array(x)
     y = np.array(y)
@@ -20,10 +22,10 @@ def draw_profile(self, vname, x, y, s=None, band=True, text=True):
         x = x[s]
         y = y[s]
 
-    plt.plot(x, y)
-    plt.grid(True)
-    plt.xlabel(vname)
-    plt.ylabel('FCN')
+    ax.plot(x, y)
+    ax.grid(True)
+    ax.set_xlabel(vname)
+    ax.set_ylabel('FCN')
 
     try:
         minpos = np.argmin(y)
@@ -41,12 +43,12 @@ def draw_profile(self, vname, x, y, s=None, band=True, text=True):
         re = x[rightpos] - x[minpos]
 
         if band:
-            plt.axvspan(x[leftpos], x[rightpos], facecolor='g', alpha=0.5)
+            ax.axvspan(x[leftpos], x[rightpos], facecolor='g', alpha=0.5)
 
         if text:
-            plt.figtext(0.5, 0.5,
-                        '%s = %7.3e ( -%7.3e , +%7.3e)' % (vname, x[minpos], le, re),
-                        ha='center')
+            ax.text(0.5, 0.5,
+                       '%s = %7.3e ( -%7.3e , +%7.3e)' % (vname, x[minpos], le, re),
+                       ha='center', transform=ax.transAxes)
     except ValueError:
         warnings.warn(RuntimeWarning('band and text is requested but'
                                      ' the bound is too narrow.'))
@@ -54,23 +56,25 @@ def draw_profile(self, vname, x, y, s=None, band=True, text=True):
     return x, y, s
 
 
-def draw_contour(self, x, y, bins=20, bound=2, args=None, show_sigma=False):
+def draw_contour(self, x, y, bins=20, bound=2, args=None, show_sigma=False, ax=None):
     from matplotlib import pyplot as plt
+    if ax is None:
+        ax = plt.gca()
     vx, vy, vz = self.contour(x, y, bins, bound, args, subtract_min=True)
 
     v = [self.errordef * (i ** 2) for i in range(1, 4)]
 
-    CS = plt.contour(vx, vy, vz, v, colors=['b', 'k', 'r'])
+    CS = ax.contour(vx, vy, vz, v, colors=['b', 'k', 'r'])
     if not show_sigma:
-        plt.clabel(CS, v)
+        ax.clabel(CS, v)
     else:
         tmp = dict((vv, r'%i $\sigma$' % (i + 1)) for i, vv in enumerate(v))
-        plt.clabel(CS, v, fmt=tmp, fontsize=16)
-    plt.xlabel(x)
-    plt.ylabel(y)
-    plt.axhline(self.values[y], color='k', ls='--')
-    plt.axvline(self.values[x], color='k', ls='--')
-    plt.grid(True)
+        ax.clabel(CS, v, fmt=tmp, fontsize=16)
+    ax.set_xlabel(x)
+    ax.set_ylabel(y)
+    ax.axhline(self.values[y], color='k', ls='--')
+    ax.axvline(self.values[x], color='k', ls='--')
+    ax.grid(True)
     return vx, vy, vz
 
 

@@ -959,7 +959,7 @@ cdef class Minuit:
         return bins, ret
 
     def draw_profile(self, vname, bins=100, bound=2, args=None,
-                     subtract_min=False, band=True, text=True):
+                     subtract_min=False, band=True, text=True, ax=None):
         """A convenient wrapper for drawing profile using matplotlib.
 
         .. note::
@@ -988,7 +988,7 @@ cdef class Minuit:
         """
         x, y = self.profile(vname, bins, bound, args, subtract_min)
         x, y, s = _plotting.draw_profile(self, vname, x, y,
-                                         band=band, text=text)
+                                         band=band, text=text, ax=ax)
         return x, y
 
     def contour(self, x, y, bins=20, bound=2, args=None, subtract_min=False):
@@ -1203,7 +1203,7 @@ cdef class Minuit:
                                         numpoints, sigma_res)
 
     def draw_contour(self, x, y, bins=20, bound=2, args=None,
-                     show_sigma=False):
+                     show_sigma=False, ax=None):
         """Convenience wrapper for drawing contours.
 
         The argument is the same as :meth:`contour`.
@@ -1221,7 +1221,7 @@ cdef class Minuit:
             :meth:`mncontour`
         """
         return _plotting.draw_contour(self, x, y, bins,
-                                      bound, args, show_sigma)
+                                      bound, args, show_sigma, ax)
 
     cdef refreshInternalState(self):
         """Refresh internal state attributes.
