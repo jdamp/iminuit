@@ -27,7 +27,7 @@ def pedantic(self, parameters, kwds, errordef):
         w('errordef is not given. Default to 1.')
 
 
-def draw_profile(self, vname, x, y, s=None, band=True, text=True):
+def draw_profile(self, vname, x, y, s=None, band=True, text=True, ax=None):
     from matplotlib import pyplot as plt
 
     x = np.array(x)
@@ -36,11 +36,12 @@ def draw_profile(self, vname, x, y, s=None, band=True, text=True):
         s = np.array(s, dtype=bool)
         x = x[s]
         y = y[s]
-
-    plt.plot(x, y)
-    plt.grid(True)
-    plt.xlabel(vname)
-    plt.ylabel('FCN')
+    if ax is None:
+        ax = plt.gca()
+    ax.plot(x, y)
+    ax.grid(True)
+    ax.set_xlabel(vname)
+    ax.set_ylabel('FCN')
 
     try:
         minpos = np.argmin(y)
@@ -91,30 +92,33 @@ def draw_profile(self, vname, x, y, s=None, band=True, text=True):
     return x, y, s
 
 
-def draw_contour(self, x, y, bins=20, bound=2, args=None, show_sigma=False):
+def draw_contour(self, x, y, bins=20, bound=2, args=None, show_sigma=False, ax=None):
     from matplotlib import pyplot as plt
     vx, vy, vz = self.contour(x, y, bins, bound, args, subtract_min=True)
 
     v = [self.errordef * ((i + 1) ** 2) for i in range(bound)]
+    if ax is None:
+        ax = plt.gca()
 
-    CS = plt.contour(vx, vy, vz, v, colors=['b', 'k', 'r'])
+    CS = ax.contour(vx, vy, vz, v, colors=['b', 'k', 'r'])
     if not show_sigma:
-        plt.clabel(CS, v)
+        ax.clabel(CS, v)
     else:
         tmp = dict((vv, r'%i $\sigma$' % (i + 1)) for i, vv in enumerate(v))
-        plt.clabel(CS, v, fmt=tmp, fontsize=16)
-    plt.xlabel(x)
-    plt.ylabel(y)
-    plt.axhline(self.values[y], color='k', ls='--')
-    plt.axvline(self.values[x], color='k', ls='--')
-    plt.grid(True)
+        ax.clabel(CS, v, fmt=tmp, fontsize=16)
+    ax.set_xlabel(x)
+    ax.set_ylabel(y)
+    ax.axhline(self.values[y], color='k', ls='--')
+    ax.axvline(self.values[x], color='k', ls='--')
+    ax.grid(True)
     return vx, vy, vz
 
 
-def draw_mncontour(self, x, y, nsigma=2, numpoints=20):
+def draw_mncontour(self, x, y, nsigma=2, numpoints=20, ax = None):
     from matplotlib import pyplot as plt
     from matplotlib.contour import ContourSet
-
+    if ax is None:
+        ax = plt.gca()
     c_val = []
     c_pts = []
     for sigma in range(1, nsigma + 1):
@@ -124,7 +128,7 @@ def draw_mncontour(self, x, y, nsigma=2, numpoints=20):
         c_val.append(sigma)
         c_pts.append([pts])  # level can have more than one contour in mpl
     cs = ContourSet(plt.gca(), c_val, c_pts)
-    plt.clabel(cs, inline=1, fontsize=10)
-    plt.xlabel(x)
-    plt.ylabel(y)
+    ax.clabel(cs, inline=1, fontsize=10)
+    ax.set_xlabel(x)
+    ax.set_ylabel(y)
     return cs

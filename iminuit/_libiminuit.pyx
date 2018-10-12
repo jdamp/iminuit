@@ -1240,7 +1240,7 @@ cdef class Minuit:
         return values, results, migrad_status
 
     def draw_mnprofile(self, vname, bins=30, bound=2, subtract_min=False,
-                       band=True, text=True):
+                       band=True, text=True, ax=None):
         """Draw minos profile around the specified range.
 
         It is obtained by finding Migrad results with **vname** fixed
@@ -1277,7 +1277,7 @@ cdef class Minuit:
         """
         x, y, s = self.mnprofile(vname, bins, bound, subtract_min)
         return _minuit_methods.draw_profile(self, vname, x, y, s,
-                                            band=band, text=text)
+                                            band=band, text=text, ax=ax)
 
     def profile(self, vname, bins=100, bound=2, args=None, subtract_min=False):
         """Calculate cost function profile around specify range.
@@ -1330,7 +1330,7 @@ cdef class Minuit:
         return val, result
 
     def draw_profile(self, vname, bins=100, bound=2, args=None,
-                     subtract_min=False, band=True, text=True):
+                     subtract_min=False, band=True, text=True, ax=None):
         """A convenient wrapper for drawing profile using matplotlib.
 
         .. note::
@@ -1359,7 +1359,7 @@ cdef class Minuit:
         """
         x, y = self.profile(vname, bins, bound, args, subtract_min)
         x, y, s = _minuit_methods.draw_profile(self, vname, x, y,
-                                               band=band, text=text)
+                                               band=band, text=text, ax=ax)
         return x, y
 
     def contour(self, x, y, bins=20, bound=2, args=None, subtract_min=False):
@@ -1504,7 +1504,7 @@ cdef class Minuit:
 
         return xminos, yminos, cerr.Points()  #using type coersion here
 
-    def draw_mncontour(self, x, y, nsigma=2, numpoints=20):
+    def draw_mncontour(self, x, y, nsigma=2, numpoints=20, ax=None):
         """Draw minos contour.
 
         **Arguments:**
@@ -1520,10 +1520,10 @@ cdef class Minuit:
             contour
 
         """
-        return _minuit_methods.draw_mncontour(self, x, y, nsigma, numpoints)
+        return _minuit_methods.draw_mncontour(self, x, y, nsigma, numpoints, ax=ax)
 
     def draw_contour(self, x, y, bins=20, bound=2, args=None,
-                     show_sigma=False):
+                     show_sigma=False, ax=None):
         """Convenience wrapper for drawing contours.
 
         The argument is the same as :meth:`contour`.
@@ -1541,7 +1541,7 @@ cdef class Minuit:
             :meth:`mncontour`
         """
         return _minuit_methods.draw_contour(self, x, y, bins,
-                                            bound, args, show_sigma)
+                                            bound, args, show_sigma, ax=ax)
 
     cdef refresh_internal_state(self):
         """Refresh internal state attributes.
